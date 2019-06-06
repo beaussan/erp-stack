@@ -26,6 +26,10 @@ using the domain version
 $ curl curl -d '{"email": "foo@bar.fr", "firstName": "foo", "lastName": "bar", "password": "azerty" }' -H 'Content-Type: application/json' http://back.erp.localhost/auth/register
 ```
 
+## Accessing the api docs
+
+To access the api docs, you can go to the `/docs` endpoints of the back end service. You can create master there if it's not working on the ui.
+
 ## Requirements
 
 This projects is using docker and docker-compose.
