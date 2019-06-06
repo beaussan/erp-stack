@@ -1,0 +1,75 @@
+version: '3.1'
+
+services:
+  mongo:
+    image: bitnami/mongodb:latest
+    ports:
+      - 27017:27017
+    volumes:
+      - mongodb_data:/bitnami/mongodb
+    environment:
+      MONGODB_USERNAME: onionBoilerplate
+      MONGODB_PASSWORD: someNotSecurePassword
+      MONGODB_DATABASE: erp
+      MONGODB_ROOT_PASSWORD: therootpassword
+    networks:
+      - intra
+
+  server:
+    image: beaussart/erp-back:latest
+    depends_on:
+      - mongo
+    environment:
+      ## API
+      API_PORT: 3000
+      API_HOST: server
+      API_PROTOCOL: http
+      ## LOGGER
+      LOG_LEVEL: debug
+      LOG_SQL_REQUEST: 'false'
+      ## DB
+      MONGODB_URL: mongodb://onionBoilerplate:someNotSecurePassword@mongo:27017/erp
+      ## AUTHENTICATION [JWT]
+      JWT_SECRET: bananana
+    networks:
+      - intra
+      - web
+    labels:
+      traefik.port: 3000
+      traefik.enable: true
+      traefik.frontend.rule: Host:back.erp.localhost
+  
+  client:
+    image: beaussart/erp-front:latest
+    ports:
+      - 8090:80
+    volumes:
+      - ./front-config/local.json:/usr/share/nginx/html/assets/config.json
+    depends_on:
+      - server
+    networks:
+      - web
+    labels:
+      traefik.port: 80
+      traefik.enable: true
+      traefik.frontend.rule: Host:erp.localhost
+    
+  
+  proxy-traefik:
+    image: traefik
+    ports:
+      - '80:80'
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./traefik/traefik.toml:/traefik.toml
+    networks:
+      - web
+      - intra
+
+networks:
+  intra:
+  web:
+    driver: bridge
+
+volumes:
+  mongodb_data: {}

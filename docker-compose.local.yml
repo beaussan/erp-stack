@@ -1,0 +1,59 @@
+version: '3.1'
+
+services:
+  mongo:
+    image: bitnami/mongodb:latest
+    ports:
+      - 27017:27017
+    volumes:
+      - mongodb_data:/bitnami/mongodb
+    environment:
+      MONGODB_USERNAME: onionBoilerplate
+      MONGODB_PASSWORD: someNotSecurePassword
+      MONGODB_DATABASE: erp
+      MONGODB_ROOT_PASSWORD: therootpassword
+    networks:
+      - intra
+
+  server:
+    image: beaussart/erp-back:latest
+    ports:
+      - 3030:3000
+    depends_on:
+      - mongo
+    environment:
+      ## API
+      API_PORT: 3000
+      API_HOST: server
+      API_PROTOCOL: http
+      ## LOGGER
+      LOG_LEVEL: debug
+      LOG_SQL_REQUEST: 'false'
+      ## DB
+      MONGODB_URL: mongodb://onionBoilerplate:someNotSecurePassword@mongo:27017/erp
+      ## AUTHENTICATION [JWT]
+      JWT_SECRET: bananana
+    networks:
+      - intra
+      - web
+  
+  client:
+    image: beaussart/erp-front:latest
+    ports:
+      - 8090:80
+    volumes:
+      - ./front-config/local.json:/usr/share/nginx/html/assets/config.json
+    depends_on:
+      - server
+    networks:
+      - web
+    
+
+
+networks:
+  intra:
+  web:
+    driver: bridge
+
+volumes:
+  mongodb_data: {}
