@@ -10,6 +10,22 @@ There is two ways of running this stack :
 - using local ports (by default, `3030` for the server and `8090` for the ui)
 - using local domains (by default, `back.erp.localhost` and `erp.localhost`) using the port 80
 
+## Creating an account
+
+To create an account, you should do :
+
+using the port version
+
+```bash
+$ curl curl -d '{"email": "foo@bar.fr", "firstName": "foo", "lastName": "bar", "password": "azerty" }' -H 'Content-Type: application/json' http://localhost:3030/auth/register
+```
+
+using the domain version
+
+```bash
+$ curl curl -d '{"email": "foo@bar.fr", "firstName": "foo", "lastName": "bar", "password": "azerty" }' -H 'Content-Type: application/json' http://back.erp.localhost/auth/register
+```
+
 ## Requirements
 
 This projects is using docker and docker-compose.
